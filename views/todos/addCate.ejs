@@ -1,0 +1,23 @@
+<% layout('layouts/boilerplate') %>
+<div class="row">
+  <h1 class="text-center">New Category</h1>
+</div>
+<div class="offset-3 col-6">
+  <form
+    action="/todos/categories"
+    method="POST"
+    novalidate
+    class="validated-form"
+  >
+    <div class="mb-3">
+      <input class="form-control" type="text" id="title" name="name" />
+      <div class="valid-feedback">Looks good!</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        Close
+      </button>
+      <button type="submit" class="btn btn-success">Add</button>
+    </div>
+  </form>
+</div>
