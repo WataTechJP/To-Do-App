@@ -48,14 +48,14 @@ app.use(
 
 const { validateTodo } = require("./utils/middleware");
 
-app.get("/", (req, res) => {
-  res.redirect("/todos");
-});
-
 app.get("/todos", async (req, res) => {
   const todayTasks = await Todo.find({}).populate("category");
   const categories = await Category.find({});
   res.render("todos/index", { todayTasks, categories });
+});
+
+app.get("/", (req, res) => {
+  res.redirect("/todos");
 });
 
 app.use("/todos", todoRoutes);
