@@ -1,0 +1,285 @@
+<% layout('layouts/boilerplate.ejs') %>
+<div class="mb-3">
+  <h1>Today's Your Tasks</h1>
+</div>
+
+<!-- Button trigger modal -->
+<div class="mb-3">
+  <button
+    type="button"
+    class="btn btn-outline-danger"
+    data-bs-toggle="modal"
+    data-bs-target="#exampleModal"
+  >
+    Add New Task
+  </button>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Task</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <% layout('layouts/boilerplate') %>
+        <div class="row">
+          <h1 class="text-center">New Task</h1>
+        </div>
+        <div class="offset-3 col-6">
+          <form action="/todos" method="POST" novalidate class="validated-form">
+            <div class="mb-3">
+              <label class="form-label" for="title">Title</label>
+              <input
+                class="form-control"
+                type="text"
+                id="title"
+                name="todo[title]"
+              />
+              <div class="valid-feedback">Looks good!</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="category">Category</label>
+              <select
+                class="form-control"
+                type=""
+                id="category"
+                name="todo[category]"
+              >
+                <% for (let category of categories) { %>
+                <option value="<%= category._id %>">
+                  <%= category.name %>
+                </option>
+                <% } %>
+              </select>
+              <a href="/todos/addCate">Add New Category</a>
+              <div class="valid-feedback">Looks good!</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="dueDay">Due Day</label>
+              <input
+                class="form-control"
+                type="date"
+                id="dueDay"
+                name="todo[dueDay]"
+              />
+              <div class="valid-feedback">Looks good!</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="description">Description</label>
+              <textarea
+                class="form-control"
+                type="text"
+                id="description"
+                name="todo[description]"
+              ></textarea>
+              <div class="valid-feedback">Looks good!</div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button class="btn btn-success">Add</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid mb-3">
+  <h2>Pending Tasks</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr class="table-info">
+        <th scope="col">#</th>
+        <th scope="col">Title</th>
+        <th scope="col">Category</th>
+        <th scope="col">Due Day</th>
+        <th scope="col">Description</th>
+        <th scope="col">Complete</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody id="pending-tasks-body">
+      <% for (let task of todayTasks) { if (!task.completed) { %> <% let
+      indexOfId = todayTasks.indexOf(task) + 1; %>
+      <tr id="task-<%= task._id %>" class="table-info">
+        <th scope="row">
+          <a class="text-decoration-none fw-bold" href="/todos/<%= task._id %>">
+            <%= indexOfId %>
+          </a>
+        </th>
+        <td>
+          <a class="text-decoration-none fw-bold" href="/todos/<%= task._id %>">
+            <%= task.title %>
+          </a>
+        </td>
+        <td>
+          <% if (task.category) { %>
+          <a
+            class="text-decoration-none fw-bold"
+            href="/todos/categoryList/#<%= task.category.name %>"
+          >
+            <%= task.category.name %>
+          </a>
+          <% } else { %>
+          <span class="text-muted">No Category</span>
+          <% } %>
+        </td>
+        <% const dueDay = new Date(task.dueDay); dueDay.setDate(dueDay.getDate()
+        + 1); const formattedDate = dueDay.toLocaleDateString(); %>
+        <td><%= formattedDate %></td>
+        <td><%= task.description %></td>
+        <td>
+          <input type="checkbox" id="todo-<%= task._id %>" <%= task.completed ?
+          'checked' : '' %> onchange="updateCompleted('<%= task._id %>', this)"
+          >
+          <label for="todo-<%= task._id %>">Complete</label>
+        </td>
+        <td>
+          <button class="btn btn-success">
+            <a
+              href="/todos/<%= task._id %>/edit"
+              class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+              >Edit</a
+            >
+          </button>
+        </td>
+        <td>
+          <form
+            class="d-inline"
+            action="/todos/<%= task._id %>?_method=DELETE"
+            method="POST"
+          >
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% } } %>
+    </tbody>
+  </table>
+</div>
+
+<div class="container-fluid">
+  <% let completedCount = todayTasks.filter(task => task.completed).length; %>
+  <h2>
+    Completed Tasks <span><%= completedCount %>/<%= todayTasks.length %></span>
+  </h2>
+  <table class="table table-striped">
+    <thead>
+      <tr class="table-success">
+        <th scope="col">#</th>
+        <th scope="col">Title</th>
+        <th scope="col">Category</th>
+        <th scope="col">Due Day</th>
+        <th scope="col">Description</th>
+        <th scope="col">Complete</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody id="completed-tasks-body">
+      <% for (let task of todayTasks) { if (task.completed) { %> <% let
+      indexOfId = todayTasks.indexOf(task) + 1; %>
+      <tr id="task-<%= task._id %>" class="table-success">
+        <th scope="row">
+          <a class="text-decoration-none fw-bold" href="/todos/<%= task._id %>">
+            <%= indexOfId %>
+          </a>
+        </th>
+        <td>
+          <a class="text-decoration-none fw-bold" href="/todos/<%= task._id %>">
+            <%= task.title %>
+          </a>
+        </td>
+        <td>
+          <% if (task.category) { %>
+          <a
+            class="text-decoration-none fw-bold"
+            href="/todos/categoryList/#<%= task.category.name %>"
+          >
+            <%= task.category.name %>
+          </a>
+          <% } else { %>
+          <span class="text-muted">No Category</span>
+          <% } %>
+        </td>
+        <% const dueDay = new Date(task.dueDay); dueDay.setDate(dueDay.getDate()
+        + 1); const formattedDate = dueDay.toLocaleDateString(); %>
+        <td><%= formattedDate %></td>
+        <td><%= task.description %></td>
+        <td>
+          <input type="checkbox" id="todo-<%= task._id %>" <%= task.completed ?
+          'checked' : '' %> onchange="updateCompleted('<%= task._id %>', this)"
+          >
+          <label for="todo-<%= task._id %>">Complete</label>
+        </td>
+        <td>
+          <form
+            class="d-inline"
+            action="/todos/<%= task._id %>?_method=DELETE"
+            method="POST"
+          >
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% } } %>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function updateCompleted(taskId, checkbox) {
+    fetch(`/todos/${taskId}/toggle`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.success) {
+          checkbox.checked = !checkbox.checked;
+          alert("更新に失敗しました");
+          return;
+        }
+
+        const taskRow = document.getElementById(`task-${taskId}`);
+        if (!taskRow) return;
+
+        taskRow.remove();
+
+        const targetTableBody = data.completed
+          ? document.getElementById("completed-tasks-body")
+          : document.getElementById("pending-tasks-body");
+
+        targetTableBody.appendChild(taskRow);
+
+        location.reload();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        checkbox.checked = !checkbox.checked;
+        alert("エラーが発生しました");
+      });
+  }
+</script>

@@ -1,0 +1,62 @@
+<% layout('layouts/boilerplate') %>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="text-center mb-4">Task Information</h1>
+
+      <div class="card border-secondary shadow-sm">
+        <div class="card-header bg-light border-secondary">
+          <strong>Category:</strong>
+          <% if (todo.category) { %>
+          <a
+            class="text-decoration-none fw-bold"
+            href="/todos/categoryList/#<%= todo.category.name %>"
+          >
+            <%= todo.category.name %>
+          </a>
+          <% } else { %>
+          <span class="text-muted">No Category</span>
+          <% } %>
+        </div>
+
+        <div class="card-body text-dark">
+          <h2 class="card-title">Title: <%= todo.title %></h2>
+          <p class="mb-2"><strong>Description</strong></p>
+          <p class="card-text"><%= todo.description %></p>
+          <p class="text-muted">
+            <% const dueDay = new Date(todo.dueDay);
+            dueDay.setDate(dueDay.getDate() + 1); const formattedDate =
+            dueDay.toLocaleDateString(); %>
+            <strong>Due Day:</strong> <%= formattedDate %>
+          </p>
+        </div>
+
+        <div
+          class="card-footer bg-light border-secondary d-flex justify-content-between"
+        >
+          <a href="/todos/<%= todo._id %>/edit" class="btn btn-success">Edit</a>
+
+          <form action="/todos/<%= todo._id %>?_method=DELETE" method="POST">
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="/todos" class="btn btn-outline-primary mx-2">To Do List</a>
+        <% if (todo.category) { %>
+        <a
+          href="/todos/categoryList/#<%= todo.category.name %>"
+          class="btn btn-outline-primary mx-2"
+        >
+          To Category List
+        </a>
+        <% } else { %>
+        <a href="/todos/categoryList" class="btn btn-outline-primary mx-2">
+          To Category List
+        </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
