@@ -16,10 +16,7 @@ const todoRoutes = require("./routes/todos");
 const mongoUrl = process.env.MONGO_URI;
 
 mongoose
-  .connect(mongoUrl, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(mongoUrl)
   .then(() => {
     console.log("MongoDB Atlas Connection Open");
   })
@@ -55,6 +52,10 @@ app.get("/todos", async (req, res) => {
   const todayTasks = await Todo.find({}).populate("category");
   const categories = await Category.find({});
   res.render("todos/index", { todayTasks, categories });
+});
+
+app.get("/", (req, res) => {
+  res.redirect("/todos");
 });
 
 app.use("/todos", todoRoutes);
