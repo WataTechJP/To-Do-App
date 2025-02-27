@@ -28,6 +28,7 @@ const seedCategories = [
 
 const seedDB = async () => {
   await Category.deleteMany({});
+  await Category.insertMany(seedCategories);
   console.log("Default Categories Added!");
 };
 
